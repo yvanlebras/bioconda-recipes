@@ -1,0 +1,53 @@
+{% set name = "eal" %}
+{% set version = "09072021" %}
+{% set sha256 = "4ef1f1639e11881fd2603f6f23c8d0a08f1ec4c2dae503be1bf2a0d4a7680cec" %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/EDIorg/EMLassemblyline/archive/master.tar.gz
+  sha256: {{ sha256 }}
+
+build:
+  merge_build_host: True
+  # skip: True
+  number: 0
+  rpaths:
+    - lib/R/lib/
+    - lib/
+
+requirements:
+  build:
+    - {{ compiler('c') }}              # [not win]
+    - {{ compiler('m2w64_c') }}        # [win]
+    - {{ posix }}filesystem        # [win]
+    - {{ posix }}make
+    - {{ posix }}sed               # [win]
+    - {{ posix }}coreutils         # [win]
+    - {{ posix }}zip               # [win]
+    - cross-r-base {{ r_base }}    # [build_platform != target_platform]
+  host:
+    - r-base
+    - r-eml
+  run:
+    - r-base
+    - {{ native }}gcc-libs         # [win]
+    - r-eml
+
+test:
+  commands:
+    - $R -e "library('EMLassemblyline')"           # [not win]
+    - "\"%R%\" -e \"library('EMLassemblyline')\""  # [win]
+
+about:
+  home: https://github.com/EDIorg/EMLassemblyline
+  license: MIT
+  summary: For scientists and data managers to create high quality EML metadata for dataset publication. EAL is optimized for automating recurring publications (time series or data derived from time series sources) but works well for "one-off" publications, especially through the MetaShARK interface. EAL prioritizes automated metadata extraction from data objects to minimize required human effort and encourages EML best practices to make publications Findable, Accessible, Interoperable, and Reusable.
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - conda-forge/r
+    - yvanlebras
